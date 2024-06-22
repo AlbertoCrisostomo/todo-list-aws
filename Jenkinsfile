@@ -12,14 +12,14 @@ pipeline {
     stages {
         stage('Get Code') {
             steps {
-                echo 'Inicio de la clonación del código fuente!!!'
+                echo 'Inicio de stage Get Code!!!'
                 git 'https://github.com/AlbertoCrisostomo/todo-list-aws.git'
             }
         }
         
         stage('Static Test') {
             steps {
-                echo 'Inicio de las pruebas Static!!!'
+                echo 'Inicio de stage Static Test!!!'
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh'''
                         pwd
@@ -32,7 +32,7 @@ pipeline {
 
         stage('Security Test') {
             steps {
-                echo 'Inicio de las pruebas Security!!!'
+                echo 'Inicio de stage Security Test!!!'
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh'''
                         bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
@@ -44,7 +44,7 @@ pipeline {
         
         stage('Build & Deploy'){
             steps {
-                echo 'Inicio del Build!!!'
+                echo 'Inicio de stage Build & Deploy!!!'
                 sh "sam build"
 
                 sleep(time: 5, unit: 'SECONDS')
@@ -63,38 +63,52 @@ pipeline {
             }
         }
 
-        stage('Integration Tests') {
+        stage('Rest Tests') {
             steps {
                 script {
-                    echo "Inicio Integration Tests"
-                    sh '''
-                      #!/bin/bash
-
-                      # Muestra la salida del Stage y Region
-                      echo "get_base_url_api.sh --> Input 1 'stage' value: ${STAGE}"
-                      echo "get_base_url_api.sh --> Input 2 'region' value: ${AWS_REGION}"
-
-                      # Describe CloudFormation stacks y captura la salida
-                      outputs=$(aws cloudformation describe-stacks --stack-name ${STAGE}-todo-list-aws --region ${AWS_REGION}  | jq '.Stacks[0].Outputs')
-                    
-                      # Extrae el valor de BaseUrlApi usando jq
-                      BASE_URL_API=$(echo "$outputs" | jq -r '.[] | select(.OutputKey=="BaseUrlApi") | .OutputValue')
-                    
-                      # Muestra el valor de BaseUrlApi
-                      echo $BASE_URL_API
-
-                      # Setea en el entorno la URL
-                      export BASE_URL=$BASE_URL_API
-
-                      # Ejecuta las pruebas
-                      pytest --junitxml=result-rest.xml test/integration/todoApiTest.py
-                    '''
-                    
-                    // Muestra el resultado
-                    junit 'result*.xml'
+                    echo "Inicio de stage Rest Tests"
+                    catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                        sh '''
+                            #!/bin/bash
+    
+                            # Muestra la salida del Stage y Region
+                            echo "get_base_url_api.sh --> Input 1 'stage' value: ${STAGE}"
+                            echo "get_base_url_api.sh --> Input 2 'region' value: ${AWS_REGION}"
+    
+                            # Describe CloudFormation stacks y captura la salida
+                            outputs=$(aws cloudformation describe-stacks --stack-name ${STAGE}-todo-list-aws --region ${AWS_REGION}  | jq '.Stacks[0].Outputs')
+                        
+                            # Extrae el valor de BaseUrlApi usando jq
+                            BASE_URL_API=$(echo "$outputs" | jq -r '.[] | select(.OutputKey=="BaseUrlApi") | .OutputValue')
+                        
+                            # Muestra el valor de BaseUrlApi
+                            echo $BASE_URL_API
+    
+                            # Setea en el entorno la URL
+                            export BASE_URL=$BASE_URL_API
+    
+                            # Ejecuta las pruebas
+                            pytest --junitxml=result-rest.xml test/integration/todoApiTest.py
+                        '''
+                        
+                        // Muestra el resultado
+                        junit 'result*.xml'
+                    }
                 }
             }
         }
 
+        stage('Promote') {
+            steps {
+                echo 'Inicio de stage Promote!!!'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    sh'''
+                        bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+                    '''
+                    recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 20, type: 'TOTAL', unstable: true], [threshold: 40, type: 'TOTAL', unstable: false]]
+                }
+            }
+        }
+        
     }
 }
