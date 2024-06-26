@@ -13,7 +13,7 @@ pipeline {
         stage('Get Code') {
             steps {
                 echo 'Inicio de stage Get Code!!!'
-                git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git'
+                git branch: 'develop', url: 'https://git-token-id@github.com/AlbertoCrisostomo/todo-list-aws.git'
             }
         }
         
