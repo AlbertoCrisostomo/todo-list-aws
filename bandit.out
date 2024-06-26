@@ -1,0 +1,29 @@
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/CreateTodoFunction/requests/auth.py:148: [B324] Use of weak MD5 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/CreateTodoFunction/requests/auth.py:156: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/CreateTodoFunction/requests/auth.py:205: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/DeleteTodoFunction/requests/auth.py:148: [B324] Use of weak MD5 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/DeleteTodoFunction/requests/auth.py:156: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/DeleteTodoFunction/requests/auth.py:205: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/GetTodoFunction/requests/auth.py:148: [B324] Use of weak MD5 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/GetTodoFunction/requests/auth.py:156: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/GetTodoFunction/requests/auth.py:205: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/ListTodosFunction/requests/auth.py:148: [B324] Use of weak MD5 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/ListTodosFunction/requests/auth.py:156: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/ListTodosFunction/requests/auth.py:205: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/UpdateTodoFunction/requests/auth.py:148: [B324] Use of weak MD5 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/UpdateTodoFunction/requests/auth.py:156: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/.aws-sam/build/UpdateTodoFunction/requests/auth.py:205: [B324] Use of weak SHA1 hash for security. Consider usedforsecurity=False
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:30: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:44: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:59: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:72: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:85: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:99: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:109: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:123: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:141: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:153: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:163: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:176: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:189: [B113] Requests call without timeout
+/var/lib/jenkins/workspace/Tarea_CP1.D-Reto_1/test/integration/todoApiTest.py:196: [B113] Requests call without timeout
