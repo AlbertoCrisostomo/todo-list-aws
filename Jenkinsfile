@@ -124,9 +124,7 @@ pipeline {
                     // Hacemos el merge excluyendo el Jenkinsfile
                     sh 'git merge origin/develop --no-commit --no-ff'
                     sh 'git reset HEAD Jenkinsfile'
-                    sh 'git reset HEAD result-rest.xml'
                     sh 'git checkout -- Jenkinsfile'
-                    sh 'git checkout -- result-rest.xml'
 
                     // Verificamos si hay cambios para commit
                     def status = sh script: 'git status --porcelain', returnStdout: true
