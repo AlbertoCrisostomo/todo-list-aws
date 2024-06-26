@@ -128,7 +128,7 @@ pipeline {
                     if (status) {
                         // Hay cambios para commit
                         sh 'git add -A'
-                        sh 'git commit -m "Promote develop to master excluding Jenkinsfile"'
+                        sh 'git commit -m "Promoviendo develop a master excluyendo Jenkinsfile"'
                         sh 'git checkout master'
                         sh 'git merge temp-merge'
                         sh 'git push origin master'
