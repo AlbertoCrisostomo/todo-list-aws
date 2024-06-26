@@ -101,11 +101,30 @@ pipeline {
         stage('Promote') {
             steps {
                 echo 'Inicio de stage Promote!!!'
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    sh'''
-                        bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
-                    '''
-                    recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 20, type: 'TOTAL', unstable: true], [threshold: 40, type: 'TOTAL', unstable: false]]
+                script {
+                    // Configuramos Git
+                    sh 'git config user.name "AlbertoCrisostomo"'
+                    sh 'git config user.email "alberto.crisostomo@gmail.com"'
+                    
+                    // Fetch all branches
+                    sh 'git fetch origin'
+
+                    // Cambiamos a la rama master
+                    sh 'git checkout master'
+
+                    // Merge la rama develop sin hacer commit (para recuperar el archivo Jenkinsfile)
+                    sh 'git merge --no-ff --no-commit develop'
+
+                    // Restauramos el archivo Jenkinsfile de la rama master
+                    sh 'git checkout HEAD Jenkinsfile'
+                    
+                    // Commit del merge
+                    sh 'git commit -m "Merge de la rama develop a la rama  master, manteniendo el Jenkinsfile de master"'
+                    
+                    // Push a la rama master
+                    withCredentials([string(credentialsId: 'git-token-id', variable: 'GIT_TOKEN')]) {
+                        sh 'git push https://${GIT_TOKEN}@https://github.com/AlbertoCrisostomo/todo-list-aws.git master'
+                    }
                 }
             }
         }
