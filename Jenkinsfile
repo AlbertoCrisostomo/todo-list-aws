@@ -112,6 +112,9 @@ pipeline {
                     sh 'git remote set-url origin https://AlbertoCrisostomo:${GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git'
                     sh 'git fetch origin master'
 
+                     // Eliminamos la rama temporal si ya existe
+                    sh 'git branch -D temp-merge || true'
+                    
                     // Creamos una rama temporal para manejar el merge
                     sh 'git checkout -b temp-merge'
 
