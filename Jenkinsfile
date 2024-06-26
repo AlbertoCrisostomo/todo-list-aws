@@ -7,15 +7,15 @@ pipeline {
         S3_BUCKET = 'aws-sam-cli-managed-default-samclisourcebucket-tpbrtihbizum'
         S3_PREFIX = 'staging'
         STAGE = 'staging'
+
+        GITHUB_TOKEN = credentials('git-token-id')
     }
 
     stages {
         stage('Get Code') {
             steps {
                 echo 'Inicio de stage Get Code!!!'
-                //git branch: 'develop', url: 'https://git-token-id@github.com/AlbertoCrisostomo/todo-list-aws.git'
-                checkout([$class: 'GitSCM', branches: [[name: 'origin/develop']], 
-                              userRemoteConfigs: [[url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git']]])
+                git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
             }
         }
         
@@ -108,25 +108,26 @@ pipeline {
                     sh 'git config user.name "AlbertoCrisostomo"'
                     sh 'git config user.email "alberto.crisostomo@gmail.com"'
                     
-                    // Fetch all branches
-                    sh 'git fetch origin'
+                    // Agregamos el remoto y actualizamos
+                    sh 'git remote set-url origin https://AlbertoCrisostomo:${GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git'
+                    sh 'git fetch origin master'
 
-                    // Cambiamos a la rama master
-                    sh 'git checkout origin/master'
+                    // Creamos una rama temporal para manejar el merge
+                    sh 'git checkout -b temp-merge'
 
-                    // Merge la rama develop sin hacer commit (para recuperar el archivo Jenkinsfile)
-                    sh 'git merge --no-ff --no-commit origin/develop'
+                    // Hacemos el merge excluyendo el Jenkinsfile
+                    sh 'git merge origin/develop --no-commit --no-ff'
+                    sh 'git reset HEAD Jenkinsfile'
+                    sh 'git checkout -- Jenkinsfile'
 
-                    // Restauramos el archivo Jenkinsfile de la rama master
-                    sh 'git checkout HEAD Jenkinsfile'
+                    // Commit y push a master
+                    sh 'git commit -m "Promote develop to master excluding Jenkinsfile"'
+                    sh 'git checkout master'
+                    sh 'git merge temp-merge'
+                    sh 'git push origin master'
                     
-                    // Commit del merge
-                    sh 'git commit -m "Merge de la rama develop a la rama  master, manteniendo el Jenkinsfile de master"'
-                    
-                    // Push a la rama master
-                    withCredentials([string(credentialsId: 'git-token-id', variable: 'GIT_TOKEN')]) {
-                        sh 'git push https://${GIT_TOKEN}@https://github.com/AlbertoCrisostomo/todo-list-aws.git HEAD:master'
-                    }
+                    // Limpiar la rama temporal
+                    sh 'git branch -d temp-merge'
                 }
             }
         }
