@@ -110,10 +110,10 @@ pipeline {
                     sh 'git fetch origin'
 
                     // Cambiamos a la rama master
-                    sh 'git checkout master'
+                    sh 'git checkout origin/master'
 
                     // Merge la rama develop sin hacer commit (para recuperar el archivo Jenkinsfile)
-                    sh 'git merge --no-ff --no-commit develop'
+                    sh 'git merge --no-ff --no-commit origin/develop'
 
                     // Restauramos el archivo Jenkinsfile de la rama master
                     sh 'git checkout HEAD Jenkinsfile'
@@ -123,7 +123,7 @@ pipeline {
                     
                     // Push a la rama master
                     withCredentials([string(credentialsId: 'git-token-id', variable: 'GIT_TOKEN')]) {
-                        sh 'git push https://${GIT_TOKEN}@https://github.com/AlbertoCrisostomo/todo-list-aws.git master'
+                        sh 'git push https://${GIT_TOKEN}@https://github.com/AlbertoCrisostomo/todo-list-aws.git HEAD:master'
                     }
                 }
             }
