@@ -13,7 +13,9 @@ pipeline {
         stage('Get Code') {
             steps {
                 echo 'Inicio de stage Get Code!!!'
-                git branch: 'develop', url: 'https://git-token-id@github.com/AlbertoCrisostomo/todo-list-aws.git'
+                //git branch: 'develop', url: 'https://git-token-id@github.com/AlbertoCrisostomo/todo-list-aws.git'
+                checkout([$class: 'GitSCM', branches: [[name: 'origin/develop']], 
+                              userRemoteConfigs: [[url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git']]])
             }
         }
         
