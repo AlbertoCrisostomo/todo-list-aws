@@ -107,6 +107,9 @@ pipeline {
                     // Configuramos Git
                     sh 'git config user.name "AlbertoCrisostomo"'
                     sh 'git config user.email "alberto.crisostomo@gmail.com"'
+
+                    //Eliminamon cualquier cambio en el directorio de trabajo
+                    sh "git checkout -- ."
                     
                     // Agregamos el remoto y actualizamos
                     sh 'git remote set-url origin https://AlbertoCrisostomo:${GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git'
