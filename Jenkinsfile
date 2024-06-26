@@ -120,13 +120,20 @@ pipeline {
                     sh 'git reset HEAD Jenkinsfile'
                     sh 'git checkout -- Jenkinsfile'
 
-                    // Commit y push a master
-                    sh 'git commit -m "Promote develop to master excluding Jenkinsfile"'
-                    sh 'git checkout master'
-                    sh 'git merge temp-merge'
-                    sh 'git push origin master'
+                    // Verificamos si hay cambios para commit
+                    def status = sh script: 'git status --porcelain', returnStdout: true
+                    if (status) {
+                        // Hay cambios para commit
+                        sh 'git add -A'
+                        sh 'git commit -m "Promote develop to master excluding Jenkinsfile"'
+                        sh 'git checkout master'
+                        sh 'git merge temp-merge'
+                        sh 'git push origin master'
+                    } else {
+                        echo 'No changes to commit.'
+                    }
                     
-                    // Limpiar la rama temporal
+                    // Limpiamos la rama temporal
                     sh 'git branch -d temp-merge'
                 }
             }
