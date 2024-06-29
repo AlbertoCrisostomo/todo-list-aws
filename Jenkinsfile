@@ -118,23 +118,25 @@ pipeline {
                         if [ -d "todo-list-aws" ]; then
                             rm -rf todo-list-aws
                         fi
-
-                        # Clonar el repositorio
-                        git clone ${repoUrl} todo-list-aws
+                        '''
+                        
+                        // Clonar el repositorio y realizar las operaciones de merge
+                        sh "git clone ${repoUrl} todo-list-aws"
+                        sh '''
                         cd todo-list-aws
 
                         # Cambiar a la rama master
-                        git checkout ${masterBranch}
+                        git checkout master
 
                         # Hacer merge con la rama develop, resolviendo conflictos automáticamente
-                        git merge -X theirs ${developBranch}
+                        git merge -X theirs develop
 
                         # Revertir los cambios en el Jenkinsfile si hubo conflictos
                         git checkout --ours Jenkinsfile
 
                         # Hacer commit de los cambios y pushear
                         git commit -am "Merged develop into master, resolving conflicts and keeping Jenkinsfile unchanged"
-                        git push origin ${masterBranch}
+                        git push origin master
                         '''
                     }
                 }
