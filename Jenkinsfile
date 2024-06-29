@@ -121,7 +121,7 @@ pipeline {
                         '''
                         
                         // Clonar el repositorio y realizar las operaciones de merge
-                        sh "git clone https://${env.GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git todo-list-aws"
+                        //sh "git clone https://${env.GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git todo-list-aws"
                         sh '''
                         cd todo-list-aws
 
