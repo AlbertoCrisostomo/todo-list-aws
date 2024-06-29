@@ -124,13 +124,14 @@ pipeline {
                                 git checkout origin/master -- Jenkinsfile
                             else
                                 echo "Jenkinsfile not found in origin/master"
+                                exit 1
                             fi
 
                             # Cambiar a la rama develop
                             git checkout develop
 
-                            # Limpiar archivos no rastreados que podrían ser sobrescritos
-                            git clean -df
+                            # Limpiar archivos no rastreados si es posible
+                            git clean -df || echo "Failed to clean untracked files"
 
                             # Hacer merge con la rama master
                             git merge origin/master
