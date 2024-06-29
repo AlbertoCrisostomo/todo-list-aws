@@ -129,6 +129,9 @@ pipeline {
                             # Cambiar a la rama develop
                             git checkout develop
 
+                            # Limpiar archivos no rastreados que podrían ser sobrescritos
+                            git clean -df
+
                             # Hacer merge con la rama master
                             git merge origin/master
                             
