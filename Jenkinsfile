@@ -131,6 +131,9 @@ pipeline {
                         # Cambiar a la rama master
                         git checkout master
 
+                        # Guardar el estado del Jenkinsfile actual en master
+                        git checkout origin/master -- Jenkinsfile
+                        
                         # Hacer merge con la rama develop, resolviendo conflictos automáticamente
                         git merge -X theirs origin/develop
 
