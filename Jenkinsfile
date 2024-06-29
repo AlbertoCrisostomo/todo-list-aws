@@ -190,6 +190,7 @@ pipeline {
                     
                     // Limpiamos la rama temporal
                     sh 'git branch -d temp-merge'
+                    echo 'FINNNNNNNNNNNNNNN'
                 }
             }
         }
