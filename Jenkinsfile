@@ -104,7 +104,7 @@ pipeline {
             steps {
                 echo "Inicio de stage Promote"
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    withCredentials([string(credentialsId: 'git-token-id', variable: 'TOKEN-GIT')]) {
+                    withCredentials([string(credentialsId: 'git-token-id', variable: 'MIGIT')]) {
                         script {
                             // Configurando git
                             sh "git config --global user.email 'acrisostomop@gmail.com'"
@@ -115,7 +115,7 @@ pipeline {
                             sh "git clean -fd"
         
                             // Obteninendo la última versión desde el origen
-                            sh "git fetch https://\$TOKEN-GIT@github.com/AlbertoCrisostomo/todo-list-aws.git"
+                            sh "git fetch https://\$MIGIT@github.com/AlbertoCrisostomo/todo-list-aws.git"
         
                             // Haciendo checkout a master y merge de develop
                             sh "git checkout master"
