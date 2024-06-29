@@ -102,16 +102,9 @@ pipeline {
 
         stage('Promote') {
             steps {
-                echo 'Inicio de stage Promote!!!'
+                echo "Inicio de stage Promote"
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     withCredentials([string(credentialsId: 'git-token-id', variable: 'PAT')]) {
-                        sh """
-                            echo 'STAGE --> Promote merge to master'
-                            echo 'Host name:'; hostname
-                            echo 'User:'; whoami
-                            echo 'Workspace:'; pwd
-                        """
-        
                         script {
                             // Configuración de git
                             sh "git config --global user.email 'acrisostomop@gmail.com'"
@@ -127,7 +120,10 @@ pipeline {
                             // Hacer checkout a master y merge de develop
                             sh "git checkout master"
                             sh "git pull origin master"
-                            sh "git merge origin/develop"
+                            sh "git checkout develop"
+                            sh "git pull origin develop"
+                            sh "git checkout master"
+                            sh "git merge develop"
         
                             // Resolver conflictos y asegurar que Jenkinsfile no se actualice
                             def mergeStatus = sh(script: "git status --porcelain", returnStdout: true).trim()
@@ -142,6 +138,12 @@ pipeline {
                                 """
                             } else {
                                 sh "echo 'Merge completed successfully without conflicts.'"
+                                // Asegurar que el archivo Jenkinsfile no se actualice
+                                sh """
+                                    git checkout --ours Jenkinsfile
+                                    git add Jenkinsfile
+                                    git commit -m 'Ensure Jenkinsfile from master'
+                                """
                             }
         
                             // Push del resultado del merge a master
