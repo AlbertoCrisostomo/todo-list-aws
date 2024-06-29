@@ -102,6 +102,68 @@ pipeline {
 
         stage('Promote') {
             steps {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    withCredentials([string(credentialsId: 'git-token-id', variable: 'PAT')]) {
+                        sh """
+                            echo 'STAGE --> Promote merge to master'
+                            echo 'Host name:'; hostname
+                            echo 'User:'; whoami
+                            echo 'Workspace:'; pwd
+                        """
+        
+                        script {
+                            // Configuración de git
+                            sh "git config --global user.email 'acrisostomop@gmail.com'"
+                            sh "git config --global user.name 'AlbertoCrisostomo'"
+        
+                            // Eliminar cualquier cambio en el directorio de trabajo y asegurar estar en una rama limpia
+                            sh "git reset --hard"
+                            sh "git clean -fd"
+        
+                            // Obtener la última versión desde el origen
+                            sh "git fetch https://\$PAT@github.com/AlbertoCrisostomo/todo-list-aws.git"
+        
+                            // Hacer checkout a master y merge de develop
+                            sh "git checkout master"
+                            sh "git pull origin master"
+                            sh "git checkout develop"
+                            sh "git pull origin develop"
+                            sh "git checkout master"
+                            
+                            // Intentar el merge
+                            def mergeStatus = sh(script: "git merge develop", returnStatus: true)
+                            
+                            // Resolver conflictos y asegurar que Jenkinsfile no se actualice
+                            if (mergeStatus != 0) {
+                                sh "echo 'Merge conflict detected. Resolving conflicts.'"
+                                // Restaurar el archivo Jenkinsfile con la versión del master
+                                sh """
+                                    git merge --abort
+                                    git merge develop -X ours --no-commit
+                                    git checkout --ours Jenkinsfile
+                                    git add Jenkinsfile
+                                    git commit -m 'Merge develop into master with Jenkinsfile from master'
+                                """
+                            } else {
+                                sh "echo 'Merge completed successfully without conflicts.'"
+                                // Asegurar que el archivo Jenkinsfile no se actualice
+                                sh """
+                                    git checkout --ours Jenkinsfile
+                                    git add Jenkinsfile
+                                    git commit -m 'Ensure Jenkinsfile from master'
+                                """
+                            }
+        
+                            // Push del resultado del merge a master
+                            sh "git push https://\$PAT@github.com/AlbertoCrisostomo/todo-list-aws.git master"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Promote 3') {
+            steps {
                 echo "Inicio de stage Promote"
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     withCredentials([string(credentialsId: 'git-token-id', variable: 'PAT')]) {
