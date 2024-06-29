@@ -101,6 +101,52 @@ pipeline {
         }
 
         stage('Promote') {
+            steps {
+                echo 'Inicio de stage Promote!!!'
+                script {
+                    withCredentials([string(credentialsId: 'git-token-id', variable: 'GITHUB_TOKEN')]) {
+                        def developBranch = 'develop'
+                        def masterBranch = 'master'
+
+                        sh 'pwd'
+                        
+                        // Cambiar al directorio del repositorio clonado
+                        dir('todo-list-aws') {
+                            sh '''
+                            # Configurar Git
+                            git config --global user.email "alberto.crisostomo@gmail.com"
+                            git config --global user.name "AlbertoCrisostomo"
+
+                            # Obtener las ramas remotas
+                            git fetch origin
+                            
+                            # Cambiar a la rama develop
+                            git checkout develop
+
+                            # Limpiar archivos no rastreados si es posible
+                            git clean -df || echo "Failed to clean untracked files"
+
+                            # Hacer merge con la rama master
+                            git merge origin/master
+                            
+                            # Resolver conflictos automáticamente, dando prioridad a los cambios de develop
+                            git merge -X theirs origin/develop
+                            
+                            # Añadir el Jenkinsfile al índice para mantenerlo sin cambios
+                            git checkout --ours Jenkinsfile
+                            git add Jenkinsfile
+
+                            # Hacer commit de los cambios y pushear a master
+                            git commit -m "Merge develop into master, keeping Jenkinsfile unchanged"
+                            git push origin develop:master
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Promote SH') {
           
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
