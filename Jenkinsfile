@@ -119,7 +119,7 @@ pipeline {
                             git fetch origin
                             
                             # Verificar si existe el Jenkinsfile en origin/master
-                            if git show origin/master:Jenkinsfile > /dev/null 2>&1; then
+                            if git ls-tree -r --name-only origin/master | grep -q '^Jenkinsfile$'; then
                                 # Restaurar el estado actual del Jenkinsfile en master
                                 git checkout origin/master -- Jenkinsfile
                             else
