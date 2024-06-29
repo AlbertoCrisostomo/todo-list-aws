@@ -144,7 +144,7 @@ pipeline {
                         git commit -m "Merged develop into master, resolving conflicts and keeping Jenkinsfile unchanged"
                         git push origin master
                         '''
-                    }                    }
+                    } 
                 }
             }
         }
