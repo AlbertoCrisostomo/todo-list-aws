@@ -104,9 +104,61 @@ pipeline {
             steps {
                 echo 'Inicio de stage Promote!!!'
                 script {
+                    withCredentials([string(credentialsId: 'git-token-id', variable: 'GITHUB_TOKEN')]) {
+                        def repoUrl = "https://AlbertoCrisostomo:${GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git"
+                        def developBranch = 'develop'
+                        def masterBranch = 'master'
+                        
+                        sh '''
+                        # Configurar Git
+                        git config --global user.email "alberto.crisostomo@gmail.com"
+                        git config --global user.name "AlbertoCrisostomo"
+
+                        # Si el directorio ya existe, eliminarlo
+                        if [ -d "todo-list-aws" ]; then
+                            rm -rf todo-list-aws
+                        fi
+                        '''
+                        
+                        // Clonar el repositorio y realizar las operaciones de merge
+                        sh "git clone https://${env.GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git todo-list-aws"
+                        sh '''
+                        cd todo-list-aws
+
+                        # Obtener las ramas remotas
+                        git fetch origin
+
+                        # Cambiar a la rama master
+                        git checkout master
+
+                        # Hacer merge con la rama develop, resolviendo conflictos automáticamente
+                        git merge -X theirs origin/develop
+
+                        # Revertir los cambios en el Jenkinsfile si hubo conflictos
+                        git checkout --ours Jenkinsfile
+
+                        # Añadir el Jenkinsfile al índice
+                        git add -f Jenkinsfile
+
+                        # Hacer commit de los cambios y pushear
+                        git commit --allow-empty -m "Merged develop into master, resolving conflicts and keeping Jenkinsfile unchanged"
+                        git push origin master
+                        '''
+                    } 
+                }
+            }
+        }
+        
+        stage('Promote 2') {
+            steps {
+                echo 'Inicio de stage Promote 2!!!'
+                script {
                     // Configuramos Git
                     sh 'git config user.name "AlbertoCrisostomo"'
                     sh 'git config user.email "alberto.crisostomo@gmail.com"'
+
+                    //Eliminamon cualquier cambio en el directorio de trabajo
+                    sh "git checkout -- ."
                     
                     // Agregamos el remoto y actualizamos
                     sh 'git remote set-url origin https://AlbertoCrisostomo:${GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git'
@@ -128,7 +180,7 @@ pipeline {
                     if (status) {
                         // Hay cambios para commit
                         sh 'git add -A'
-                        sh 'git commit -m "Promote develop to master excluding Jenkinsfile"'
+                        sh 'git commit -m "Promoviendo develop a master excluyendo Jenkinsfile"'
                         sh 'git checkout master'
                         sh 'git merge temp-merge'
                         sh 'git push origin master'
