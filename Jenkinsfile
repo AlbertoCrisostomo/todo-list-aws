@@ -102,6 +102,41 @@ pipeline {
 
         stage('Promote') {
             steps {
+                script {
+                    withCredentials([string(credentialsId: 'git-token-id', variable: 'GITHUB_TOKEN')]) {
+                        def repoUrl = "https://AlbertoCrisostomo:${GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git"
+                        def developBranch = 'develop'
+                        def masterBranch = 'master'
+                        
+                        sh """
+                        # Configurar Git
+                        git config --global user.email "alberto.crisostomo@gmail.com"
+                        git config --global user.name "AlbertoCrisostomo"
+
+                        # Clonar el repositorio
+                        git clone ${repoUrl}
+                        cd todo-list-aws
+
+                        # Cambiar a la rama master
+                        git checkout ${masterBranch}
+
+                        # Hacer merge con la rama develop, resolviendo conflictos automáticamente
+                        git merge -X theirs ${developBranch}
+
+                        # Revertir los cambios en el Jenkinsfile si hubo conflictos
+                        git checkout --ours Jenkinsfile
+
+                        # Hacer commit de los cambios y pushear
+                        git commit -am "Merged develop into master, resolving conflicts and keeping Jenkinsfile unchanged"
+                        git push origin ${masterBranch}
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Promote 2') {
+            steps {
                 echo 'Inicio de stage Promote!!!'
                 script {
                     // Configuramos Git
