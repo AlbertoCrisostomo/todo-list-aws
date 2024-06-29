@@ -102,6 +102,7 @@ pipeline {
 
         stage('Promote') {
             steps {
+                echo 'Inicio de stage Promote!!!'
                 script {
                     withCredentials([string(credentialsId: 'git-token-id', variable: 'GITHUB_TOKEN')]) {
                         def repoUrl = "https://AlbertoCrisostomo:${GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git"
@@ -137,7 +138,7 @@ pipeline {
         
         stage('Promote 2') {
             steps {
-                echo 'Inicio de stage Promote!!!'
+                echo 'Inicio de stage Promote 2!!!'
                 script {
                     // Configuramos Git
                     sh 'git config user.name "AlbertoCrisostomo"'
