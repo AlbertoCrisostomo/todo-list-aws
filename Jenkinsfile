@@ -109,13 +109,18 @@ pipeline {
                         def developBranch = 'develop'
                         def masterBranch = 'master'
                         
-                        sh """
+                        sh '''
                         # Configurar Git
                         git config --global user.email "alberto.crisostomo@gmail.com"
                         git config --global user.name "AlbertoCrisostomo"
 
+                        # Si el directorio ya existe, eliminarlo
+                        if [ -d "todo-list-aws" ]; then
+                            rm -rf todo-list-aws
+                        fi
+
                         # Clonar el repositorio
-                        git clone ${repoUrl}
+                        git clone ${repoUrl} todo-list-aws
                         cd todo-list-aws
 
                         # Cambiar a la rama master
@@ -130,7 +135,7 @@ pipeline {
                         # Hacer commit de los cambios y pushear
                         git commit -am "Merged develop into master, resolving conflicts and keeping Jenkinsfile unchanged"
                         git push origin ${masterBranch}
-                        """
+                        '''
                     }
                 }
             }
