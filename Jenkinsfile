@@ -112,6 +112,7 @@ pipeline {
                         
                         // Cambiar al directorio del repositorio clonado
                         dir('todo-list-aws') {
+                            sh 'pwd'
                             sh '''
                             # Configurar Git
                             git config --global user.email "alberto.crisostomo@gmail.com"
