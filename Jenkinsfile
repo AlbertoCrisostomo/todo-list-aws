@@ -137,7 +137,8 @@ pipeline {
                         # Revertir los cambios en el Jenkinsfile si hubo conflictos
                         git checkout --ours Jenkinsfile
 
-                        # Añadir el Jenkinsfile al índice
+                        # Restablecer y añadir el Jenkinsfile al índice
+                        git reset HEAD Jenkinsfile
                         git add Jenkinsfile
 
                         # Hacer commit de los cambios y pushear
