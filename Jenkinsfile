@@ -121,15 +121,18 @@ pipeline {
                         '''
                         
                         // Clonar el repositorio y realizar las operaciones de merge
-                        sh "git clone ${repoUrl} todo-list-aws"
+                        sh "git clone https://${env.GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git todo-list-aws"
                         sh '''
                         cd todo-list-aws
+
+                        # Obtener las ramas remotas
+                        git fetch origin
 
                         # Cambiar a la rama master
                         git checkout master
 
                         # Hacer merge con la rama develop, resolviendo conflictos automáticamente
-                        git merge -X theirs develop
+                        git merge -X theirs origin/develop
 
                         # Revertir los cambios en el Jenkinsfile si hubo conflictos
                         git checkout --ours Jenkinsfile
