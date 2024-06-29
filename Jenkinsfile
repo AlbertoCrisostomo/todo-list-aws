@@ -137,12 +137,11 @@ pipeline {
                         # Revertir los cambios en el Jenkinsfile si hubo conflictos
                         git checkout --ours Jenkinsfile
 
-                        # Restablecer y añadir el Jenkinsfile al índice
-                        git reset HEAD Jenkinsfile
-                        git add Jenkinsfile
+                        # Añadir el Jenkinsfile al índice
+                        git add -f Jenkinsfile
 
                         # Hacer commit de los cambios y pushear
-                        git commit -m "Merged develop into master, resolving conflicts and keeping Jenkinsfile unchanged"
+                        git commit --allow-empty -m "Merged develop into master, resolving conflicts and keeping Jenkinsfile unchanged"
                         git push origin master
                         '''
                     } 
