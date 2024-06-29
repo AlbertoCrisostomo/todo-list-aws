@@ -118,8 +118,13 @@ pipeline {
                             # Obtener las ramas remotas
                             git fetch origin
                             
-                            # Guardar el estado actual del Jenkinsfile en master
-                            git checkout origin/master -- Jenkinsfile
+                            # Verificar si existe el Jenkinsfile en origin/master
+                            if git show origin/master:Jenkinsfile > /dev/null 2>&1; then
+                                # Restaurar el estado actual del Jenkinsfile en master
+                                git checkout origin/master -- Jenkinsfile
+                            else
+                                echo "Jenkinsfile not found in origin/master"
+                            fi
 
                             # Cambiar a la rama develop
                             git checkout develop
@@ -139,7 +144,7 @@ pipeline {
                             git push origin develop:master
                             '''
                         }
-                    } 
+                    }
                 }
             }
         }
