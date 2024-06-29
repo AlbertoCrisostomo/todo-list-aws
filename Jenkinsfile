@@ -103,51 +103,165 @@ pipeline {
         stage('Promote') {
             steps {
                 echo 'Inicio de stage Promote!!!'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    withCredentials([string(credentialsId: 'git-token-id', variable: 'PAT')]) {
+                        sh """
+                            echo 'STAGE --> Promote merge to master'
+                            echo 'Host name:'; hostname
+                            echo 'User:'; whoami
+                            echo 'Workspace:'; pwd
+                        """
+        
+                        script {
+                            // Configuración de git
+                            sh "git config --global user.email 'acrisostomop@gmail.com'"
+                            sh "git config --global user.name 'AlbertoCrisostomo'"
+        
+                            // Eliminar cualquier cambio en el directorio de trabajo y asegurar estar en una rama limpia
+                            sh "git reset --hard"
+                            sh "git clean -fd"
+        
+                            // Obtener la última versión desde el origen
+                            sh "git fetch https://\$PAT@github.com/AlbertoCrisostomo/todo-list-aws.git"
+        
+                            // Hacer checkout a master y merge de develop
+                            sh "git checkout master"
+                            sh "git pull origin master"
+                            sh "git merge origin/develop"
+        
+                            // Resolver conflictos y asegurar que Jenkinsfile no se actualice
+                            def mergeStatus = sh(script: "git status --porcelain", returnStdout: true).trim()
+        
+                            if (mergeStatus) {
+                                sh "echo 'Merge conflict detected. Resolving conflicts.'"
+                                // Restaurar el archivo Jenkinsfile con la versión del master
+                                sh """
+                                    git checkout --ours Jenkinsfile
+                                    git add Jenkinsfile
+                                    git commit -m 'Merge develop into master with Jenkinsfile from master'
+                                """
+                            } else {
+                                sh "echo 'Merge completed successfully without conflicts.'"
+                            }
+        
+                            // Push del resultado del merge a master
+                            sh "git push https://\$PAT@github.com/AlbertoCrisostomo/todo-list-aws.git master"
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Promote 3') {
+          
+            steps {
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                    withCredentials([string(credentialsId: 'git-token-id', variable: 'PAT')]) {
+                        sh """
+                            echo 'STAGE --> Promote merge to master'
+                            echo 'Host name:'; hostname
+                            echo 'User:'; whoami
+                            echo 'Workspace:'; pwd
+                        """
+
+                        script {
+                            // Configuración de git
+                            sh "git config --global user.email 'acrisostomop@gmail.com'"
+                            sh "git config --global user.name 'AlbertoCrisostomo'"
+
+                            //Eliminar cualquier cambio en el directorio de trabajo
+                            sh "git checkout -- ."
+
+                            //Hacer checkout a master y obtener la última versión desde el origen
+                            sh "git checkout master"
+                            sh "git pull https://\$PAT@github.com/AlbertoCrisostomo/todo-list-aws.git master"
+
+                            //Hacer checkout a develop y obtener la última versión desde el origen
+                            sh "git checkout develop"
+                            sh "git pull https://\$PAT@github.com/AlbertoCrisostomo/todo-list-aws.git develop"
+                                                    
+                            //Checkout master
+                            sh "git checkout master"
+
+                            //Merge develop en master
+                            def mergeStatus = sh(script: "git merge develop", returnStatus: true)
+
+                            //En caso de conflicto en el Merge o si dió Error el Merge
+                            if (mergeStatus){
+                                //Mensaje de error para conflicto o error en la ejecución del merge
+                                sh "echo 'Error: Merge conflict or other error occurred during git merge.'"
+                                //Abort merge
+                                sh "git merge --abort"
+
+                                //Lanzar el merge nuevamente y mantener los archivos en master en caso de conflicto
+                                sh "git merge develop -X ours --no-commit"
+                                //Restaurar el archivo Jenkinsfile con la versión del master
+                                sh "git checkout --ours Jenkinsfile"
+                                sh "git add Jenkinsfile"
+                                sh "git commit -m 'Merged develop into master, excluding Jenkinsfile'"
+                            }
+                            else {
+                                sh "echo 'Merge completed successfully.'"
+                            }
+                            
+                            //Push del resultado del merge result a master
+                            sh "git push https://\$PAT@github.com/AlbertoCrisostomo/todo-list-aws.git master"
+                                                    
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Promote 1') {
+            steps {
+                echo 'Inicio de stage Promote!!!'
                 script {
                     withCredentials([string(credentialsId: 'git-token-id', variable: 'GITHUB_TOKEN')]) {
-                        def repoUrl = "https://AlbertoCrisostomo:${GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git"
                         def developBranch = 'develop'
                         def masterBranch = 'master'
                         
-                        sh '''
-                        # Configurar Git
-                        git config --global user.email "alberto.crisostomo@gmail.com"
-                        git config --global user.name "AlbertoCrisostomo"
+                        // Cambiar al directorio del repositorio clonado
+                        dir('todo-list-aws') {
+                            sh '''
+                            # Configurar Git
+                            git config --global user.email "alberto.crisostomo@gmail.com"
+                            git config --global user.name "AlbertoCrisostomo"
 
-                        # Si el directorio ya existe, eliminarlo
-                        if [ -d "todo-list-aws" ]; then
-                            rm -rf todo-list-aws
-                        fi
-                        '''
-                        
-                        // Clonar el repositorio y realizar las operaciones de merge
-                        sh "git clone https://${env.GITHUB_TOKEN}@github.com/AlbertoCrisostomo/todo-list-aws.git todo-list-aws"
-                        sh '''
-                        cd todo-list-aws
+                            # Obtener las ramas remotas
+                            git fetch origin
+                            
+                            # Verificar si existe el Jenkinsfile en origin/master
+                            if git ls-tree -r --name-only origin/master | grep -q '^Jenkinsfile$'; then
+                                # Restaurar el estado actual del Jenkinsfile en master
+                                git checkout origin/master -- Jenkinsfile
+                            else
+                                echo "Jenkinsfile not found in origin/master"
+                                exit 1
+                            fi
 
-                        # Obtener las ramas remotas
-                        git fetch origin
+                            # Cambiar a la rama develop
+                            git checkout develop
 
-                        # Cambiar a la rama master
-                        git checkout master
+                            # Limpiar archivos no rastreados si es posible
+                            git clean -df || echo "Failed to clean untracked files"
 
-                        # Guardar el estado del Jenkinsfile actual en master
-                        git checkout origin/master -- Jenkinsfile
-                        
-                        # Hacer merge con la rama develop, resolviendo conflictos automáticamente
-                        git merge -X theirs origin/develop
+                            # Hacer merge con la rama master
+                            git merge origin/master
+                            
+                            # Resolver conflictos automáticamente, dando prioridad a los cambios de develop
+                            git merge -X theirs origin/develop
+                            
+                            # Añadir el Jenkinsfile al índice para mantenerlo sin cambios
+                            git checkout --ours Jenkinsfile
+                            git add Jenkinsfile
 
-                        # Revertir los cambios en el Jenkinsfile si hubo conflictos
-                        git checkout --ours Jenkinsfile
-
-                        # Añadir el Jenkinsfile al índice
-                        git add -f Jenkinsfile
-
-                        # Hacer commit de los cambios y pushear
-                        git commit --allow-empty -m "Merged develop into master, resolving conflicts and keeping Jenkinsfile unchanged"
-                        git push origin master
-                        '''
-                    } 
+                            # Hacer commit de los cambios y pushear a master
+                            git commit -m "Merge develop into master, keeping Jenkinsfile unchanged"
+                            git push origin develop:master
+                            '''
+                        }
+                    }
                 }
             }
         }
@@ -158,7 +272,7 @@ pipeline {
                 script {
                     // Configuramos Git
                     sh 'git config user.name "AlbertoCrisostomo"'
-                    sh 'git config user.email "alberto.crisostomo@gmail.com"'
+                    sh 'git config user.email "acrisostomop@gmail.com"'
 
                     //Eliminamon cualquier cambio en el directorio de trabajo
                     sh "git checkout -- ."
