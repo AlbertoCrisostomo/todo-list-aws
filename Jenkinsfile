@@ -102,28 +102,22 @@ pipeline {
 
         stage('Promote') {
             steps {
+                echo "Inicio de stage Promote"
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    withCredentials([string(credentialsId: 'git-token-id', variable: 'PAT')]) {
-                        sh """
-                            echo 'STAGE --> Promote merge to master'
-                            echo 'Host name:'; hostname
-                            echo 'User:'; whoami
-                            echo 'Workspace:'; pwd
-                        """
-        
+                    withCredentials([string(credentialsId: 'git-token-id', variable: 'TOKEN-GIT')]) {
                         script {
-                            // Configuración de git
+                            // Configurando git
                             sh "git config --global user.email 'acrisostomop@gmail.com'"
                             sh "git config --global user.name 'AlbertoCrisostomo'"
         
-                            // Eliminar cualquier cambio en el directorio de trabajo y asegurar estar en una rama limpia
+                            // Eliminando cualquier cambio en el directorio de trabajo y asegurando de estar en una rama limpia
                             sh "git reset --hard"
                             sh "git clean -fd"
         
-                            // Obtener la última versión desde el origen
-                            sh "git fetch https://\$PAT@github.com/AlbertoCrisostomo/todo-list-aws.git"
+                            // Obteninendo la última versión desde el origen
+                            sh "git fetch https://\$TOKEN-GIT@github.com/AlbertoCrisostomo/todo-list-aws.git"
         
-                            // Hacer checkout a master y merge de develop
+                            // Haciendo checkout a master y merge de develop
                             sh "git checkout master"
                             sh "git pull origin master"
                             sh "git checkout develop"
