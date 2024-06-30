@@ -15,32 +15,7 @@ pipeline {
         stage('Get Code') {
             steps {
                 echo 'Inicio de stage Get Code!!!'
-                git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
-            }
-        }
-        
-        stage('Static Test') {
-            steps {
-                echo 'Inicio de stage Static Test!!!'
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    sh'''
-                        pwd
-                        python3 -m flake8 --exit-zero --format=pylint src > flake8.out
-                    '''
-                    recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold: 0, type: 'TOTAL', unstable: true], [threshold: 1, type: 'TOTAL', unstable: false]]
-                }
-            }
-        }
-
-        stage('Security Test') {
-            steps {
-                echo 'Inicio de stage Security Test!!!'
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    sh'''
-                        bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
-                    '''
-                    recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 20, type: 'TOTAL', unstable: true], [threshold: 40, type: 'TOTAL', unstable: false]]
-                }
+                git branch: 'master', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
             }
         }
         
@@ -99,61 +74,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Promote') {
-            steps {
-                echo "Inicio de stage Promote"
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    withCredentials([string(credentialsId: 'git-token-id', variable: 'MIGIT')]) {
-                        script {
-                            // Configurando git
-                            sh "git config --global user.email 'acrisostomop@gmail.com'"
-                            sh "git config --global user.name 'AlbertoCrisostomo'"
-        
-                            // Eliminando cualquier cambio en el directorio de trabajo y asegurando de estar en una rama limpia
-                            sh "git reset --hard"
-                            sh "git clean -fd"
-        
-                            // Obteninendo la última versión desde el origen
-                            sh "git fetch https://\$MIGIT@github.com/AlbertoCrisostomo/todo-list-aws.git"
-        
-                            // Haciendo checkout a master y merge de develop
-                            sh "git checkout master"
-                            sh "git pull origin master"
-                            sh "git checkout develop"
-                            sh "git pull origin develop"
-                            sh "git checkout master"
-                            sh "git merge develop"
-        
-                            // Resolver conflictos y asegurar que Jenkinsfile no se actualice
-                            def mergeStatus = sh(script: "git status --porcelain", returnStdout: true).trim()
-        
-                            if (mergeStatus) {
-                                sh "echo 'Merge conflict detected. Resolving conflicts.'"
-                                // Restaurar el archivo Jenkinsfile con la versión del master
-                                sh """
-                                    git checkout --ours Jenkinsfile
-                                    git add Jenkinsfile
-                                    git commit -m 'Merge develop into master with Jenkinsfile from master'
-                                """
-                            } else {
-                                sh "echo 'Merge completed successfully without conflicts.'"
-                                // Asegurar que el archivo Jenkinsfile no se actualice
-                                sh """
-                                    git checkout --ours Jenkinsfile
-                                    git add Jenkinsfile
-                                    git commit -m 'Ensure Jenkinsfile from master'
-                                """
-                            }
-        
-                            // Push del resultado del merge a master
-                            sh "git push https://\$PAT@github.com/AlbertoCrisostomo/todo-list-aws.git master"
-                        }
-                    }
-                }
-            }
-        }
-        
         
     }
 }
