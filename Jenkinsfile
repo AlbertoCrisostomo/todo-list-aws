@@ -6,7 +6,7 @@ pipeline {
         AWS_REGION = 'us-east-1'
         S3_BUCKET = 'aws-sam-cli-managed-default-samclisourcebucket-tpbrtihbizum'
         S3_PREFIX = 'staging'
-        STAGE = 'production'
+        STAGE = 'staging'
 
         GITHUB_TOKEN = credentials('git-token-id')
     }
