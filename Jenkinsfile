@@ -144,8 +144,14 @@ pipeline {
                                 sh """
                                     git checkout --ours Jenkinsfile
                                     git add Jenkinsfile
-                                    git commit -m 'Jenkinsfile es de master'
                                 """
+                                // Verificando si hay cambios antes de hacer el commit
+                                def status = sh(script: "git status --porcelain", returnStdout: true).trim()
+                                if (status) {
+                                    sh "git commit -m '-Manteniendo Jenkinsfile de master'"
+                                } else {
+                                    sh "echo 'Sin cambios para commit.'"
+                                }
                             }
         
                             // Push del resultado del merge a master
