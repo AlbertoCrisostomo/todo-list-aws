@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        STACK_NAME = 'staging-todo-list-aws'
+        STACK_NAME = 'staging-todo-list-aws-develop'
         AWS_REGION = 'us-east-1'
         S3_BUCKET = 'aws-sam-cli-managed-default-samclisourcebucket-tpbrtihbizum'
         S3_PREFIX = 'staging'
