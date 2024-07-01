@@ -13,38 +13,61 @@ pipeline {
 
     stages {
         stage('Get Code') {
+            agent any
             steps {
                 echo 'Inicio de stage Get Code!!!'
+                sh 'whoami'
+                sh 'hostname'
                 git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
+
+                sh 'pwd'
+                stash includes: 'src/**', name: 'd_src'
+                stash includes: 'test/**', name: 'd_test'
             }
         }
+
+        stage ('Test') {
+            agent {
+                label 'agente_1'
+            }
+            stages {
+                stage('Static Test') {
+                    steps {
+                        echo 'Inicio de stage Static Test!!!'
+                        sh 'whoami'
+                        sh 'hostname'
+                        unstash 'd_src'
+
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                            sh'''
+                                pwd
+                                python3 -m flake8 --exit-zero --format=pylint src > flake8.out
+                            '''
+                            recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold: 0, type: 'TOTAL', unstable: true], [threshold: 1, type: 'TOTAL', unstable: false]]
+                        }
+                    }
+                }
         
-        stage('Static Test') {
-            steps {
-                echo 'Inicio de stage Static Test!!!'
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    sh'''
-                        pwd
-                        python3 -m flake8 --exit-zero --format=pylint src > flake8.out
-                    '''
-                    recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold: 0, type: 'TOTAL', unstable: true], [threshold: 1, type: 'TOTAL', unstable: false]]
+                stage('Security Test') {
+                    steps {
+                        echo 'Inicio de stage Security Test!!!'
+                        sh 'whoami'
+                        sh 'hostname'
+                        unstash 'd_test'
+
+                        catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                            sh'''
+                                bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+                            '''
+                            recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 20, type: 'TOTAL', unstable: true], [threshold: 40, type: 'TOTAL', unstable: false]]
+                        }
+                    }
                 }
             }
         }
 
-        stage('Security Test') {
-            steps {
-                echo 'Inicio de stage Security Test!!!'
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    sh'''
-                        bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
-                    '''
-                    recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 20, type: 'TOTAL', unstable: true], [threshold: 40, type: 'TOTAL', unstable: false]]
-                }
-            }
-        }
-        
         stage('Build & Deploy'){
+            agent any
             steps {
                 echo 'Inicio de stage Build & Deploy!!!'
                 sh "sam build"
@@ -66,6 +89,7 @@ pipeline {
         }
 
         stage('Rest Tests') {
+            agent any
             steps {
                 script {
                     echo "Inicio de stage Rest Tests"
@@ -74,8 +98,8 @@ pipeline {
                             #!/bin/bash
     
                             # Muestra la salida del Stage y Region
-                            echo "get_base_url_api.sh --> Input 1 'stage' value: ${STAGE}"
-                            echo "get_base_url_api.sh --> Input 2 'region' value: ${AWS_REGION}"
+                            echo "Input 1 'stage' value: ${STAGE}"
+                            echo "Input 2 'region' value: ${AWS_REGION}"
     
                             # Describe CloudFormation stacks y captura la salida
                             outputs=$(aws cloudformation describe-stacks --stack-name ${STAGE}-todo-list-aws --region ${AWS_REGION}  | jq '.Stacks[0].Outputs')
@@ -101,6 +125,7 @@ pipeline {
         }
 
         stage('Promote') {
+            agent any
             steps {
                 echo "Inicio de stage Promote"
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
@@ -135,7 +160,9 @@ pipeline {
                                     git merge --abort
                                     git merge develop -X ours --no-commit
                                     git checkout --ours Jenkinsfile
+                                    git checkout --ours Jenkinsfile_agentes
                                     git add Jenkinsfile
+                                    git add Jenkinsfile_agentes
                                     git commit -m 'Merge de la rama develop a la rama master con Jenkinsfile de master'
                                 """
                             } else {
@@ -143,7 +170,9 @@ pipeline {
                                 // Asegurando que el archivo Jenkinsfile no se actualice
                                 sh """
                                     git checkout --ours Jenkinsfile
+                                    git checkout --ours Jenkinsfile_agentes
                                     git add Jenkinsfile
+                                    git add Jenkinsfile_agentes
                                 """
                                 // Verificando si hay cambios antes de hacer el commit
                                 def status = sh(script: "git status --porcelain", returnStdout: true).trim()
