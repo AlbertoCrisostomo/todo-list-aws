@@ -69,6 +69,7 @@ pipeline {
                 echo 'Inicio de stage Build & Deploy!!!'
                 sh 'pwd'
                 sh 'cd todo-list-aws'
+                sh 'pwd'
                 sh "sam build"
 
                 sleep(time: 5, unit: 'SECONDS')
