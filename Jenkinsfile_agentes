@@ -89,10 +89,14 @@ pipeline {
         }
 
         stage('Rest Tests') {
-            agent any
+            agent {
+                label 'agente_2'
+            }
             steps {
                 script {
                     echo "Inicio de stage Rest Tests"
+                    sh 'whoami'
+                    sh 'hostname'
                     catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                         sh '''
                             #!/bin/bash
