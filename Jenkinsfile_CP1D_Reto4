@@ -14,7 +14,7 @@ pipeline {
                 echo 'Inicio de stage Get Code!!!'
                 git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
 
-                git branch: 'staging', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws-samconfig.git'
+                //git branch: 'staging', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws-samconfig.git'
 
                 // Verify directories and contents
                  //sh 'ls -la todo-list-aws'
