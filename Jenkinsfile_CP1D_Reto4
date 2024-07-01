@@ -16,6 +16,10 @@ pipeline {
 
                 git branch: 'staging', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws-samconfig.git'
 
+                // Verify directories and contents
+                 sh 'ls -la todo-list-aws'
+                 sh 'ls -la todo-list-aws-samconfig'
+
                 // Mueve el contenido del repositorio 2 al repositorio 1
                 sh 'cp -r todo-list-aws-samconfig/* todo-list-aws/'
             }
