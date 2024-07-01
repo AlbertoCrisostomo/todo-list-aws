@@ -70,10 +70,9 @@ pipeline {
                 sleep(time: 5, unit: 'SECONDS')
 
                 echo 'Inicio del Deploy!!!'
-                sh "sam deploy --config-file samconfig.toml \
-                               --template-file template.yaml \
-                               --no-fail-on-empty-changeset \
-                               --no-confirm-changeset"
+                dir('todo-list-aws') {
+                    sh 'sam deploy --config-file samconfig.toml --template-file template.yaml --no-fail-on-empty-changeset --no-confirm-changeset'
+                }
             }
         }
 
