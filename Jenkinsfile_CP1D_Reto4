@@ -13,6 +13,11 @@ pipeline {
             steps {
                 echo 'Inicio de stage Get Code!!!'
                 git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
+
+                git branch: 'staging', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws-samconfig.git'
+
+                // Mueve el contenido del repositorio 2 al repositorio 1
+                sh 'cp -r todo-list-aws-samconfig/* todo-list-aws/'
             }
         }
         
