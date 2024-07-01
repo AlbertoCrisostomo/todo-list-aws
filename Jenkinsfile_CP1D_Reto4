@@ -43,6 +43,8 @@ pipeline {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     sh'''
                         pwd
+                        cd todo-list-aws
+                        pwd
                         python3 -m flake8 --exit-zero --format=pylint src > flake8.out
                     '''
                     recordIssues tools: [flake8(name: 'Flake8', pattern: 'flake8.out')], qualityGates: [[threshold: 0, type: 'TOTAL', unstable: true], [threshold: 1, type: 'TOTAL', unstable: false]]
@@ -70,9 +72,9 @@ pipeline {
                 sleep(time: 5, unit: 'SECONDS')
 
                 echo 'Inicio del Deploy!!!'
-                dir('todo-list-aws') {
+                //dir('todo-list-aws') {
                     sh 'sam deploy --config-file samconfig.toml --template-file template.yaml --no-fail-on-empty-changeset --no-confirm-changeset'
-                }
+                //}
             }
         }
 
