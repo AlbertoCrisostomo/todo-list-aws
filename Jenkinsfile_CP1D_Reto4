@@ -70,10 +70,6 @@ pipeline {
         stage('Build & Deploy'){
             steps {
                 echo 'Inicio del Build!!!'
-                //sh 'pwd'
-                //sh 'cd todo-list-aws'
-                //sh 'pwd'
-                //sh "sam build"
                 dir('todo-list-aws') {
                     sh 'pwd'
                     sh "sam build"
@@ -86,13 +82,7 @@ pipeline {
                     sh 'pwd'
                     //sh 'sam deploy --config-file samconfig.toml --template-file template.yaml --no-fail-on-empty-changeset --no-confirm-changeset'
                     //sh 'sam deploy --config-file samconfig.toml --stack-name ${env.STACK_NAME} --no-fail-on-empty-changeset --no-confirm-changeset'
-                    sh "sam deploy \
-                          --region ${env.AWS_REGION} \
-                          --config-env ${env.STAGE} \
-                          --template-file template.yaml \
-                          --config-file samconfig.toml \
-                          --no-fail-on-empty-changeset \
-                          --no-confirm-changeset"
+                    sh 'sam deploy --config-file samconfig.toml --config-env ${env.STAGE} --no-fail-on-empty-changeset --no-confirm-changeset'
                 }
             }
         }
