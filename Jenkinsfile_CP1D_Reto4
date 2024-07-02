@@ -12,28 +12,17 @@ pipeline {
         stage('Get Code') {
             steps {
                 echo 'Inicio de stage Get Code!!!'
-                //git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
-
-                //git branch: 'staging', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws-samconfig.git'
-
-                // Verify directories and contents
-                 //sh 'ls -la todo-list-aws'
-                 //sh 'ls -la todo-list-aws-samconfig'
-
-                // Mueve el contenido del repositorio 2 al repositorio 1
-                //sh 'cp -r todo-list-aws-samconfig/* todo-list-aws/'
-                    // Checkout first repository
-                    dir('todo-list-aws') {
-                        git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
-                    }
-                    
-                    // Checkout second repository
-                    dir('todo-list-aws-samconfig') {
-                        git branch: 'staging', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws-samconfig.git'
-                    }
-                    
-                    // Move contents of repo2 into repo1
-                    sh 'cp -r todo-list-aws-samconfig/* todo-list-aws/'
+                dir('todo-list-aws') {
+                    git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
+                }
+                
+                // Checkout second repository
+                dir('todo-list-aws-samconfig') {
+                    git branch: 'staging', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws-samconfig.git'
+                }
+                
+                // Mueve el contenido del segundo repositorio al primero
+                sh 'cp -r todo-list-aws-samconfig/* todo-list-aws/'
             }
         }
         
@@ -80,9 +69,6 @@ pipeline {
                 echo 'Inicio del Deploy!!!'
                 dir('todo-list-aws') {
                     sh 'pwd'
-                    //sh 'sam deploy --config-file samconfig.toml --template-file template.yaml --no-fail-on-empty-changeset --no-confirm-changeset'
-                    //sh 'sam deploy --config-file samconfig.toml --stack-name ${env.STACK_NAME} --no-fail-on-empty-changeset --no-confirm-changeset'
-                    //sh 'sam deploy --config-file samconfig.toml --config-env ${env.STAGE} --no-fail-on-empty-changeset --no-confirm-changeset'
                     sh "sam deploy \
                           --config-env ${env.STAGE} \
                           --config-file samconfig.toml \
@@ -163,7 +149,11 @@ pipeline {
                                     git merge --abort
                                     git merge develop -X ours --no-commit
                                     git checkout --ours Jenkinsfile
+                                    git checkout --ours Jenkinsfile_agentes
+                                    git checkout --ours  Jenkinsfile_CP1D_Reto4
                                     git add Jenkinsfile
+                                    git add Jenkinsfile_agentes
+                                    git add Jenkinsfile_CP1D_Reto4
                                     git commit -m 'Merge de la rama develop a la rama master con Jenkinsfile de master'
                                 """
                             } else {
@@ -171,7 +161,11 @@ pipeline {
                                 // Asegurando que el archivo Jenkinsfile no se actualice
                                 sh """
                                     git checkout --ours Jenkinsfile
+                                    git checkout --ours Jenkinsfile_agentes
+                                    git checkout --ours  Jenkinsfile_CP1D_Reto4
                                     git add Jenkinsfile
+                                    git add Jenkinsfile_agentes
+                                    git add Jenkinsfile_CP1D_Reto4
                                 """
                                 // Verificando si hay cambios antes de hacer el commit
                                 def status = sh(script: "git status --porcelain", returnStdout: true).trim()
