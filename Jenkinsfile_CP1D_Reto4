@@ -118,6 +118,7 @@ pipeline {
             steps {
                 echo "Inicio de stage Promote"
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                dir('todo-list-aws') {
                     withCredentials([string(credentialsId: 'git-token-id', variable: 'MIGIT')]) {
                         script {
                             // Configurando git
@@ -184,6 +185,7 @@ pipeline {
                             sh "git push https://\$MIGIT@github.com/AlbertoCrisostomo/todo-list-aws.git master"
                         }
                     }
+                }
                 }
             }
         }
