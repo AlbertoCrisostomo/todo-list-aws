@@ -60,7 +60,7 @@ pipeline {
                         pwd
                         cd todo-list-aws
                         pwd
-                        bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+                        bandit --exit-zero -r src -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
                     '''
                     recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold: 20, type: 'TOTAL', unstable: true], [threshold: 40, type: 'TOTAL', unstable: false]]
                 }
@@ -69,11 +69,15 @@ pipeline {
         
         stage('Build & Deploy'){
             steps {
-                echo 'Inicio de stage Build & Deploy!!!'
-                sh 'pwd'
-                sh 'cd todo-list-aws'
-                sh 'pwd'
-                sh "sam build"
+                echo 'Inicio del Build!!!'
+                //sh 'pwd'
+                //sh 'cd todo-list-aws'
+                //sh 'pwd'
+                //sh "sam build"
+                dir('todo-list-aws') {
+                    sh 'pwd'
+                    sh "sam build"
+                }
 
                 sleep(time: 5, unit: 'SECONDS')
 
