@@ -40,6 +40,9 @@ pipeline {
                 dir('todo-list-aws') {
                     sh 'pwd'
                     sh "sam deploy \
+                          --region ${env.AWS_REGION} \
+                          --config-env ${env.STAGE} \
+                          --template-file template.yaml \
                           --config-file samconfig.toml \
                           --no-fail-on-empty-changeset \
                           --no-confirm-changeset"
