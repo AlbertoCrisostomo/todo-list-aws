@@ -13,12 +13,12 @@ pipeline {
             steps {
                 echo 'Inicio de stage Get Code!!!'
                 dir('todo-list-aws') {
-                    git branch: 'develop', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
+                    git branch: 'master', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws.git', credentialsId: 'git-token-id'
                 }
                 
                 // Checkout second repository
                 dir('todo-list-aws-samconfig') {
-                    git branch: 'staging', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws-samconfig.git'
+                    git branch: 'production', url: 'https://github.com/AlbertoCrisostomo/todo-list-aws-samconfig.git'
                 }
                 
                 // Mueve el contenido del segundo repositorio al primero
