@@ -4,6 +4,7 @@ pipeline {
     environment {
         AWS_REGION = 'us-east-1'
         STAGE = 'staging'
+        STACK_NAME = 'todo-list-aws-production'
 
         GITHUB_TOKEN = credentials('git-token-id')
     }
@@ -42,6 +43,7 @@ pipeline {
                     sh "sam deploy \
                           --region ${env.AWS_REGION} \
                           --config-env ${env.STAGE} \
+                          --stack-name ${env.STACK_NAME}
                           --template-file template.yaml \
                           --config-file samconfig.toml \
                           --no-fail-on-empty-changeset \
