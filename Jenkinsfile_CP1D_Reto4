@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'
-        STAGE = 'production'
+        STAGE = 'staging'
 
         GITHUB_TOKEN = credentials('git-token-id')
     }
