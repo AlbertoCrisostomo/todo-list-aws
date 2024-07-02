@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        STACK_NAME = 'staging-todo-list-aws-production'
+        STACK_NAME = 'todo-list-aws-production'
         AWS_REGION = 'us-east-1'
         S3_BUCKET = 'aws-sam-cli-managed-default-samclisourcebucket-tpbrtihbizum'
         S3_PREFIX = 'staging'
-        STAGE = 'staging'
+        STAGE = 'production'
 
         GITHUB_TOKEN = credentials('git-token-id')
     }
@@ -53,7 +53,7 @@ pipeline {
                             echo "Input 2 'region' value: ${AWS_REGION}"
     
                             # Describe CloudFormation stacks y captura la salida
-                            outputs=$(aws cloudformation describe-stacks --stack-name ${STAGE}-todo-list-aws --region ${AWS_REGION}  | jq '.Stacks[0].Outputs')
+                            outputs=$(aws cloudformation describe-stacks --stack-name todo-list-aws-${STAGE} --region ${AWS_REGION}  | jq '.Stacks[0].Outputs')
                         
                             # Extrae el valor de BaseUrlApi usando jq
                             BASE_URL_API=$(echo "$outputs" | jq -r '.[] | select(.OutputKey=="BaseUrlApi") | .OutputValue')
