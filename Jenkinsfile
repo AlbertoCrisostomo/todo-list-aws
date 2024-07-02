@@ -49,8 +49,8 @@ pipeline {
                             #!/bin/bash
     
                             # Muestra la salida del Stage y Region
-                            echo "get_base_url_api.sh --> Input 1 'stage' value: ${STAGE}"
-                            echo "get_base_url_api.sh --> Input 2 'region' value: ${AWS_REGION}"
+                            echo "Input 1 'stage' value: ${STAGE}"
+                            echo "Input 2 'region' value: ${AWS_REGION}"
     
                             # Describe CloudFormation stacks y captura la salida
                             outputs=$(aws cloudformation describe-stacks --stack-name ${STAGE}-todo-list-aws --region ${AWS_REGION}  | jq '.Stacks[0].Outputs')
