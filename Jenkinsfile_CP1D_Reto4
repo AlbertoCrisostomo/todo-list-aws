@@ -118,74 +118,74 @@ pipeline {
             steps {
                 echo "Inicio de stage Promote"
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                dir('todo-list-aws') {
-                    withCredentials([string(credentialsId: 'git-token-id', variable: 'MIGIT')]) {
-                        script {
-                            // Configurando git
-                            sh "git config --global user.email 'acrisostomop@gmail.com'"
-                            sh "git config --global user.name 'AlbertoCrisostomo'"
-        
-                            // Eliminando cualquier cambio en el directorio de trabajo y asegurando de estar en una rama limpia
-                            sh "git reset --hard"
-                            sh "git clean -fd"
-        
-                            // Obteninendo la última versión desde el origen
-                            sh "git fetch https://\$MIGIT@github.com/AlbertoCrisostomo/todo-list-aws.git"
-        
-                            // Haciendo checkout a master y merge de develop
-                            sh "git checkout master"
-                            sh "git pull origin master"
-                            sh "git checkout develop"
-                            sh "git pull origin develop"
-                            sh "git checkout master"
-                            
-                            // Intentando el merge
-                            def mergeStatus = sh(script: "git merge develop", returnStatus: true)
-                            
-                            // Resolviendo conflictos y asegurando que Jenkinsfile no se actualice
-                            if (mergeStatus != 0) {
-                                sh "echo 'Merge con conflictos detectados. Resolviendo conflictos.'"
-                                // Restaurar el archivo Jenkinsfile con la versión del master
-                                sh """
-                                    git merge --abort
-                                    git merge develop -X ours --no-commit
-                                    git checkout --ours Jenkinsfile
-                                    git checkout --ours Jenkinsfile_agentes
-                                    git checkout --ours  Jenkinsfile_CP1D_Reto4
-                                    git add Jenkinsfile
-                                    git add Jenkinsfile_agentes
-                                    git add Jenkinsfile_CP1D_Reto4
-                                    git commit -m 'Merge de la rama develop a la rama master con Jenkinsfile de master'
-                                """
-                            } else {
-                                sh "echo 'Merge completado sin conflictos.'"
-                                // Asegurando que el archivo Jenkinsfile no se actualice
-                                sh """
-                                    git checkout --ours Jenkinsfile
-                                    git checkout --ours Jenkinsfile_agentes
-                                    git checkout --ours  Jenkinsfile_CP1D_Reto4
-                                    git add Jenkinsfile
-                                    git add Jenkinsfile_agentes
-                                    git add Jenkinsfile_CP1D_Reto4
-                                """
+                    dir('todo-list-aws') {
+                        withCredentials([string(credentialsId: 'git-token-id', variable: 'MIGIT')]) {
+                            script {
+                                // Configurando git
+                                sh "git config --global user.email 'acrisostomop@gmail.com'"
+                                sh "git config --global user.name 'AlbertoCrisostomo'"
+            
+                                // Eliminando cualquier cambio en el directorio de trabajo y asegurando de estar en una rama limpia
+                                sh "git reset --hard"
+                                sh "git clean -fd"
+            
+                                // Obteninendo la última versión desde el origen
+                                sh "git fetch https://\$MIGIT@github.com/AlbertoCrisostomo/todo-list-aws.git"
+            
+                                // Haciendo checkout a master y merge de develop
+                                sh "git checkout master"
+                                sh "git pull origin master"
+                                sh "git checkout develop"
+                                sh "git pull origin develop"
+                                sh "git checkout master"
+                                
+                                // Intentando el merge
+                                def mergeStatus = sh(script: "git merge develop", returnStatus: true)
+                                
+                                // Resolviendo conflictos y asegurando que Jenkinsfile no se actualice
+                                if (mergeStatus != 0) {
+                                    sh "echo 'Merge con conflictos detectados. Resolviendo conflictos.'"
+                                    // Restaurar el archivo Jenkinsfile con la versión del master
+                                    sh """
+                                        git merge --abort
+                                        git merge develop -X ours --no-commit
+                                        git checkout --ours Jenkinsfile
+                                        git checkout --ours Jenkinsfile_agentes
+                                        git checkout --ours Jenkinsfile_CP1D_Reto4
+                                        git add Jenkinsfile
+                                        git add Jenkinsfile_agentes
+                                        git add Jenkinsfile_CP1D_Reto4
+                                        git commit -m 'Merge de la rama develop a la rama master con Jenkinsfile de master'
+                                    """
+                                } else {
+                                    sh "echo 'Merge completado sin conflictos.'"
+                                    // Asegurando que el archivo Jenkinsfile no se actualice
+                                    sh """
+                                        git checkout --ours Jenkinsfile
+                                        git checkout --ours Jenkinsfile_agentes
+                                        git checkout --ours Jenkinsfile_CP1D_Reto4
+                                        git add Jenkinsfile
+                                        git add Jenkinsfile_agentes
+                                        git add Jenkinsfile_CP1D_Reto4
+                                    """
+                                }
+    
+                                // Limpiando archivos no rastreados
+                                sh 'git clean -fd'
+    
+                                // Verificando si hay cambios antes de hacer el commit
+                                def status = sh(script: "git status --porcelain", returnStdout: true).trim()
+                                if (status) {
+                                    sh "git commit -m '-Manteniendo Jenkinsfile de master'"
+                                } else {
+                                    sh "echo 'Sin cambios para commit.'"
+                                }
+            
+                                // Push del resultado del merge a master
+                                sh "git push https://\$MIGIT@github.com/AlbertoCrisostomo/todo-list-aws.git master"
                             }
-
-                            // Limpiando archivos no rastreados
-                            sh 'git clean -fd'
-
-                            // Verificando si hay cambios antes de hacer el commit
-                            def status = sh(script: "git status --porcelain", returnStdout: true).trim()
-                            if (status) {
-                                sh "git commit -m '-Manteniendo Jenkinsfile de master'"
-                            } else {
-                                sh "echo 'Sin cambios para commit.'"
-                            }
-        
-                            // Push del resultado del merge a master
-                            sh "git push https://\$MIGIT@github.com/AlbertoCrisostomo/todo-list-aws.git master"
                         }
                     }
-                }
                 }
             }
         }
