@@ -85,7 +85,7 @@ pipeline {
                 dir('todo-list-aws') {
                     sh 'pwd'
                     //sh 'sam deploy --config-file samconfig.toml --template-file template.yaml --no-fail-on-empty-changeset --no-confirm-changeset'
-                    sh 'sam deploy --config-file samconfig.toml --no-fail-on-empty-changeset --no-confirm-changeset'
+                    sh 'sam deploy --config-file samconfig.toml --stack-name ${env.STACK_NAME} --no-fail-on-empty-changeset --no-confirm-changeset'
                 }
             }
         }
