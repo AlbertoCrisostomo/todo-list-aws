@@ -61,7 +61,7 @@ pipeline {
                             echo "Input 2 'region' value: ${AWS_REGION}"
     
                             # Describe CloudFormation stacks y captura la salida
-                            outputs=$(aws cloudformation describe-stacks --stack-name ${STAGE}-todo-list-aws --region ${AWS_REGION}  | jq '.Stacks[0].Outputs')
+                            outputs=$(aws cloudformation describe-stacks --stack-name todo-list-aws-${STAGE} --region ${AWS_REGION}  | jq '.Stacks[0].Outputs')
                         
                             # Extrae el valor de BaseUrlApi usando jq
                             BASE_URL_API=$(echo "$outputs" | jq -r '.[] | select(.OutputKey=="BaseUrlApi") | .OutputValue')
